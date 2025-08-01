@@ -1,45 +1,43 @@
-const formEl = document.querySelector('.feedback-form');
-const emailInputEl = formEl.querySelector('.email');
-const messageInputEl = formEl.querySelector('.message');
+let formData = {
+  email: '',
+  message: '',
+};
 
-let formData = { email: '', message: '' };
+const form = document.querySelector('.feedback-form');
+const emailInputEl = document.querySelector('input[name="email"]');
+const messageInputEl = document.querySelector('textarea[name="message"]');
+
 
 const savedData = localStorage.getItem('feedback-form-state');
 if (savedData) {
-  try {
-    formData = JSON.parse(savedData);
-    emailInputEl.value = formData.email || '';
-    messageInputEl.value = formData.message || '';
-  } catch (error) {
-    console.error('Помилка при читанні з localStorage:', error);
-  }
+  formData = JSON.parse(savedData);
+  emailInputEl.value = formData.email || '';
+  messageInputEl.value = formData.message || '';
 }
 
-formEl.addEventListener('input', handleInput);
-formEl.addEventListener('submit', handleSubmit);
+
+form.addEventListener('input', handleInput);
+form.addEventListener('submit', handleSubmit);
 
 
-function handleInput(event) {
-  const { name, value } = event.target;
-  formData[name] = value; 
+function handleInput(e) {
+  formData[e.target.name] = e.target.value.trim();
   localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 }
 
 
-function handleSubmit(event) {
-  event.preventDefault();
+function handleSubmit(e) {
+  e.preventDefault();
 
-  const email = emailInputEl.value.trim();
-  const message = messageInputEl.value.trim();
-
-  if (email === '' || message === '') {
-    alert('Всі поля мають бути заповнені!');
+  if (emailInputEl.value.trim() === '' || messageInputEl.value.trim() === '') {
+    alert('Please fill in all fields');
     return;
   }
 
-  console.log({ email, message });
+  console.log(formData); 
+
 
   localStorage.removeItem('feedback-form-state');
+  form.reset();
   formData = { email: '', message: '' };
-  formEl.reset();
 }
