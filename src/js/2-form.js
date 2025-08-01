@@ -1,44 +1,45 @@
+const formEl = document.querySelector('.feedback-form');
+const emailInputEl = formEl.querySelector('.email');
+const messageInputEl = formEl.querySelector('.message');
+
 let formData = { email: '', message: '' };
 
-const formEl = document.querySelector('.feedback-form');
+const savedData = localStorage.getItem('feedback-form-state');
+if (savedData) {
+  try {
+    formData = JSON.parse(savedData);
+    emailInputEl.value = formData.email || '';
+    messageInputEl.value = formData.message || '';
+  } catch (error) {
+    console.error('Помилка при читанні з localStorage:', error);
+  }
+}
 
-const emailInputEl = document.querySelector('.email');
-const messageInputEl = document.querySelector('.message');
 formEl.addEventListener('input', handleInput);
 formEl.addEventListener('submit', handleSubmit);
 
-const savedData = localStorage.getItem('feedback-form-state');
-const parsedData = savedData ? JSON.parse(savedData) : null;
-// Checking if there's something inside savedData. If not, I will just set it to null
 
-if (parsedData !== null) {
-  formData = parsedData;
-  emailInputEl.value = parsedData.email || '';
-  messageInputEl.value = parsedData.message || '';
-}
-
-// Input handler
 function handleInput(event) {
-  if (event.target.name === 'email') {
-    formData.email = event.target.value.trim();
-  }
-  if (event.target.name === 'message') {
-    formData.message = event.target.value.trim();
-  }
-
+  const { name, value } = event.target;
+  formData[name] = value; 
   localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 }
 
-//Submit handler
+
 function handleSubmit(event) {
   event.preventDefault();
-  if (emailInputEl.value === '' || messageInputEl.value === '') {
-    alert('Fill out all the fields please');
-  } else {
-    console.log(formData);
-    localStorage.removeItem('feedback-form-state');
-    formData.email = '';
-    formData.message = '';
-    event.currentTarget.reset();
+
+  const email = emailInputEl.value.trim();
+  const message = messageInputEl.value.trim();
+
+  if (email === '' || message === '') {
+    alert('Всі поля мають бути заповнені!');
+    return;
   }
+
+  console.log({ email, message });
+
+  localStorage.removeItem('feedback-form-state');
+  formData = { email: '', message: '' };
+  formEl.reset();
 }
